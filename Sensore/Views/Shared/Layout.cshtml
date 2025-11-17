@@ -1,0 +1,9 @@
+﻿@using Sensore.Infrastructure.Auth
+
+@if (User.IsInRole(SensoreRoles.Manager))
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Manager" asp-action="Index">Manager Dashboard</a>
+    </li>
+}
+

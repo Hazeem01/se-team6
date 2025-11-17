@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sensore.Data;
 using Sensore.Infrastructure.Auth;
+using Sensore.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => {
@@ -29,7 +31,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("IsManager", p => p.RequireRole(SensoreRoles.Manager));
 });
 
-//For better redirections
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
@@ -38,7 +40,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -46,7 +48,7 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+   
     app.UseHsts();
 }
 
@@ -55,8 +57,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
+
 
 app.MapControllerRoute(
     name: "default",
@@ -64,5 +67,20 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 await Sensore.Infrastructure.Seed.IdentitySeeder.SeedAsync(app.Services);
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    if (!db.Alerts.Any())
+    {
+        var anyUserId = db.Users.Select(u => u.Id).FirstOrDefault();
+        if (anyUserId != null)
+        {
+            db.Alerts.Add(new Alert { UserId = anyUserId, Severity = "Critical", Reason = "Test seed" });
+            db.SaveChanges();
+        }
+    }
+}
+
 
 app.Run();

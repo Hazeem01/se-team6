@@ -1,0 +1,43 @@
+﻿@{
+    ViewData["Title"] = "Manager Dashboard";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <h3>Users Summary</h3>
+        <p>Total Patients: <strong>42</strong></p>
+        <p>Total Clinicians: <strong>7</strong></p>
+    </div>
+
+    <div class="card">
+        <h3>Recent Alerts</h3>
+        <p>Critical Alerts Today: <strong>3</strong></p>
+        <p><a asp-action="Alerts" class="btn btn-primary">View All Alerts</a></p>
+    </div>
+
+    <div class="card">
+        <h3>Reports</h3>
+        <p>Latest system report generated: <strong>2 hours ago</strong></p>
+        <p><a asp-action="Reports" class="btn btn-secondary">Open Reports</a></p>
+    </div>
+</div>
+
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+    .card {
+        background: #fff;
+        padding: 1.25rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn { text-decoration: none; padding: .5rem 1rem; border-radius: 6px; }
+    .btn-primary { background-color: #0078D7; color: white; }
+    .btn-secondary { background-color: #555; color: white; }
+</style>
