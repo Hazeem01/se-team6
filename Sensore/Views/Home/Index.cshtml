@@ -1,8 +1,62 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="jumbotron mt-4">
+    <h1 class="display-4">Welcome to Sensore</h1>
+    <p class="lead">Continuous pressure-ulcer prevention through e-textile pressure mapping.</p>
+    <hr class="my-4" />
+    <p>Get started by signing in. If you are an admin, clinician, doctor or patient, use the dashboard shortcuts below.</p>
+    @if (User?.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <p class="mt-3">
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-primary btn-lg" asp-controller="Admin" asp-action="Dashboard" role="button">Admin Dashboard</a>
+                <a class="btn btn-secondary btn-lg" asp-controller="Admin" asp-action="Index" role="button">Manage Users</a>
+            }
+            @if (User.IsInRole("Clinician"))
+            {
+                <a class="btn btn-success btn-lg" asp-controller="Dashboard" asp-action="Clinician" role="button">Clinician Dashboard</a>
+            }
+            @if (User.IsInRole("Patient"))
+            {
+                <a class="btn btn-info btn-lg" asp-controller="Dashboard" asp-action="Patient" role="button">My Patient View</a>
+            }
+            @if (User.IsInRole("Doctor"))
+            {
+                <a class="btn btn-warning btn-lg" asp-controller="Dashboard" asp-action="Doctor" role="button">Doctor Dashboard</a>
+            }
+            @if (User.IsInRole("Manager"))
+            {
+                <a class="btn btn-dark btn-lg" asp-controller="Dashboard" asp-action="Manager" role="button">Manager Dashboard</a>
+            }
+        </p>
+    }
+    else
+    {
+        <p>
+            <a class="btn btn-primary btn-lg" asp-area="Identity" asp-page="/Account/Login">Sign in</a>
+            <a class="btn btn-outline-primary btn-lg" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </p>
+    }
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <h4>What Sensore does</h4>
+        <p>Monitors patient positioning using 32x32 pressure matrices, detects high-pressure regions, generates alerts, and provides visualization for clinicians.</p>
+    </div>
+    <div class="col-md-4">
+        <h4>Quick links</h4>
+        <ul>
+            <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+            <li><a asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+            <li><a asp-controller="Admin" asp-action="Index">Admin - Manage Users</a></li>
+        </ul>
+    </div>
+    <div class="col-md-4">
+        <h4>Help & Feedback</h4>
+        <p>Use the feedback links on patient pages to collect comments and review alerts from the Admin dashboard.</p>
+    </div>
 </div>

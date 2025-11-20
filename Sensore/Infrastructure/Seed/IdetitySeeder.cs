@@ -19,7 +19,7 @@ namespace Sensore.Infrastructure.Seed
                 }
             }
 
-            await CreateUserIfNotExists(userManager, "admin@sensore.local", "Admin#12345", SensoreRoles.Admin);
+            await CreateUserIfNotExists(userManager, "admin@sensore.local", "Admin#12345    ", SensoreRoles.Admin);
             await CreateUserIfNotExists(userManager, "clinician@sensore.local", "Clinician#123", SensoreRoles.Clinician);
             await CreateUserIfNotExists(userManager, "patient@sensore.local", "Patient#123", SensoreRoles.Patient);
             await CreateUserIfNotExists(userManager, "doctor@sensore.local", "Doctor#123", SensoreRoles.Doctor);

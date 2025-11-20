@@ -1,0 +1,65 @@
+@model Sensore.Models.Admin.AdminDashboardVm
+
+<h2>Admin Dashboard</h2>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <p class="card-text display-4">@Model.TotalUsers</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-dark bg-light mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Clinicians</h5>
+                <p class="card-text display-4">@Model.ClinicianCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-dark bg-light mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Patients</h5>
+                <p class="card-text display-4">@Model.PatientCount</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-dark bg-light mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Active Alerts</h5>
+                <p class="card-text display-4">@Model.ActiveAlerts</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Role Breakdown</h5>
+                <ul class="list-group">
+                    <li class="list-group-item">Admins: @Model.AdminCount</li>
+                    <li class="list-group-item">Doctors: @Model.DoctorCount</li>
+                    <li class="list-group-item">Managers: @Model.ManagerCount</li>
+                    <li class="list-group-item">Clinicians: @Model.ClinicianCount</li>
+                    <li class="list-group-item">Patients: @Model.PatientCount</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Quick Actions</h5>
+                <a class="btn btn-primary mb-2" href="@Url.Action("Index", "Admin")">Manage Users</a>
+                <a class="btn btn-secondary mb-2" href="#">View Alerts</a>
+            </div>
+        </div>
+    </div>
+</div>
