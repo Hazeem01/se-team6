@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sensore.Data;
 using Sensore.Infrastructure.Auth;
+using Sensore.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,5 +65,31 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 await Sensore.Infrastructure.Seed.IdentitySeeder.SeedAsync(app.Services);
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    
+    if (!db.SensorMetrics.Any())
+    {
+        var now = DateTime.UtcNow;
+        var rand = new Random();
+
+        var metrics = Enumerable.Range(0, 72).Select(i => new SensorMetric
+        {
+            Timestamp = now.AddMinutes(-5 * i),
+
+           
+            PeakPressureIndex = rand.Next(160, 240),             
+            ContactAreaPercentage = 55 + rand.NextDouble() * 20,     
+            AveragePressure = rand.Next(80, 140),
+            HighPressureRegions = rand.Next(0, 4)              
+        });
+
+        db.SensorMetrics.AddRange(metrics);
+        db.SaveChanges();
+    }
+}
 
 app.Run();

@@ -21,6 +21,11 @@ namespace Sensore.Controllers
         public IActionResult Doctor() => View();
 
         [Authorize(Policy = "IsManager")]
-        public IActionResult Manager() => View();
-    }
+        public IActionResult Manager()
+        {
+          
+            return RedirectToAction("Index", "Manager");
+        }
+}
+
 }

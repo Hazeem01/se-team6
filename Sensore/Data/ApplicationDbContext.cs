@@ -11,6 +11,9 @@ namespace Sensore.Data
 
         public DbSet<Alert> Alerts => Set<Alert>();
 
+        public DbSet<SensorMetric> SensorMetrics{ get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
