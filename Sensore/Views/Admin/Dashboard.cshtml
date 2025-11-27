@@ -1,64 +1,94 @@
 @model Sensore.Models.Admin.AdminDashboardVm
 
-<h2>Admin Dashboard</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="m-0">Admin Dashboard</h2>
+    <div>
+        <a class="btn btn-outline-secondary me-2" asp-controller="Admin" asp-action="Index"><i class="fa fa-users"></i> Manage Users</a>
+    </div>
+</div>
 
-<div class="row">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary mb-3">
+<div class="row g-3">
+    <div class="col-6 col-md-3">
+        <div class="card text-white bg-primary h-100">
             <div class="card-body">
-                <h5 class="card-title">Total Users</h5>
-                <p class="card-text display-4">@Model.TotalUsers</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Total Users</h6>
+                        <h3 class="card-title display-6 m-0">@Model.TotalUsers</h3>
+                    </div>
+                    <div class="display-4 text-opacity-75"><i class="fa fa-users"></i></div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-dark bg-light mb-3">
+
+    <div class="col-6 col-md-3">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title">Clinicians</h5>
-                <p class="card-text display-4">@Model.ClinicianCount</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Clinicians</h6>
+                        <h3 class="card-title display-6 m-0">@Model.ClinicianCount</h3>
+                    </div>
+                    <div class="display-4 text-muted"><i class="fa fa-user-md"></i></div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-dark bg-light mb-3">
+
+    <div class="col-6 col-md-3">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title">Patients</h5>
-                <p class="card-text display-4">@Model.PatientCount</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Patients</h6>
+                        <h3 class="card-title display-6 m-0">@Model.PatientCount</h3>
+                    </div>
+                    <div class="display-4 text-muted"><i class="fa fa-procedures"></i></div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-dark bg-light mb-3">
+
+    <div class="col-6 col-md-3">
+        <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title">Active Alerts</h5>
-                <p class="card-text display-4">@Model.ActiveAlerts</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="card-subtitle mb-2">Active Alerts</h6>
+                        <h3 class="card-title display-6 m-0">@Model.ActiveAlerts</h3>
+                    </div>
+                    <div class="display-4 text-danger"><i class="fa fa-exclamation-triangle"></i></div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row mt-3">
+<div class="row g-3 mt-3">
     <div class="col-md-6">
-        <div class="card mb-3">
+        <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Role Breakdown</h5>
-                <ul class="list-group">
-                    <li class="list-group-item">Admins: @Model.AdminCount</li>
-                    <li class="list-group-item">Doctors: @Model.DoctorCount</li>
-                    <li class="list-group-item">Managers: @Model.ManagerCount</li>
-                    <li class="list-group-item">Clinicians: @Model.ClinicianCount</li>
-                    <li class="list-group-item">Patients: @Model.PatientCount</li>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Admins <span class="badge bg-primary rounded-pill">@Model.AdminCount</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Doctors <span class="badge bg-secondary rounded-pill">@Model.DoctorCount</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Managers <span class="badge bg-success rounded-pill">@Model.ManagerCount</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Clinicians <span class="badge bg-info text-dark rounded-pill">@Model.ClinicianCount</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Patients <span class="badge bg-light text-dark rounded-pill">@Model.PatientCount</span></li>
                 </ul>
             </div>
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="card mb-3">
+        <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Quick Actions</h5>
-                <a class="btn btn-primary mb-2" href="@Url.Action("Index", "Admin")">Manage Users</a>
-                <a class="btn btn-secondary mb-2" href="#">View Alerts</a>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary" asp-controller="Admin" asp-action="Index"><i class="fa fa-users-cog me-1"></i> Manage Users</a>
+                    <a class="btn btn-outline-secondary" href="#"><i class="fa fa-file-export me-1"></i> Export Data</a>
+                </div>
             </div>
         </div>
     </div>
