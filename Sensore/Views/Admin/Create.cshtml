@@ -1,0 +1,67 @@
+@model Sensore.Models.Admin.AdminCreateUserVm
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<div class="card">
+    <div class="card-body">
+        <h2>Create User</h2>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UserName" class="form-label">Username (optional)</label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Assign Role</label>
+                <div class="row">
+                    @if (Model.AvailableRoles != null && Model.AvailableRoles.Any())
+                    {
+                        @foreach (var r in Model.AvailableRoles)
+                        {
+                            <div class="col-6 col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="SelectedRole" value="@r" id="role-@r" />
+                                    <label class="form-check-label" for="role-@r">@r</label>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12"><small class="text-muted">No roles available.</small></div>
+                    }
+                </div>
+            </div>
+
+            <button class="btn btn-primary">Create</button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+
+        @if (TempData["PasswordSetupLink"] != null)
+        {
+            <div class="mt-3">
+                <label class="form-label">Password setup link (copy and send to user)</label>
+                <div class="input-group">
+                    <input class="form-control" readonly value="@TempData["PasswordSetupLink"]" />
+                    <button class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText('@TempData["PasswordSetupLink"]')">Copy</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
