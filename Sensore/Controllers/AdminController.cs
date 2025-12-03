@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Sensore.Data;
 using Sensore.Infrastructure.Auth;
+using Sensore.Models;
 using Sensore.Models.Admin;
 
 namespace Sensore.Controllers
@@ -11,11 +14,13 @@ namespace Sensore.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ApplicationDbContext _db;
 
-        public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext db)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _db = db;
         }
 
         public async Task<IActionResult> Index(string roleFilter = "", int page = 1, int pageSize = 10)
@@ -75,7 +80,6 @@ namespace Sensore.Controllers
                 return View(model);
             }
 
-            // This checks if user with same email already exists
             var existingByEmail = await _userManager.FindByEmailAsync(model.Email);
             if (existingByEmail != null)
             {
@@ -268,6 +272,63 @@ namespace Sensore.Controllers
             vm.ActiveClinicians = vm.ClinicianCount;
 
             return View(vm);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Assignments()
+        {
+            var patients = await _userManager.GetUsersInRoleAsync(SensoreRoles.Patient);
+            var clinicians = await _userManager.GetUsersInRoleAsync(SensoreRoles.Clinician);
+            var doctors = await _userManager.GetUsersInRoleAsync(SensoreRoles.Doctor);
+
+            var assignments = await _db.PatientAssignments.AsNoTracking().ToListAsync();
+
+            var vm = new AdminPatientAssignmentVm
+            {
+                Patients = patients.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                Clinicians = clinicians.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                Doctors = doctors.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                Assignments = assignments
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AssignPatient(string patientId, string? clinicianId, string? doctorId)
+        {
+            if (string.IsNullOrEmpty(patientId))
+                return BadRequest();
+
+            var patient = await _userManager.FindByIdAsync(patientId);
+            if (patient == null)
+                return NotFound();
+
+            var assignment = await _db.PatientAssignments.FirstOrDefaultAsync(p => p.PatientId == patientId);
+            if (assignment == null)
+            {
+                assignment = new PatientAssignment
+                {
+                    PatientId = patientId,
+                    ClinicianId = string.IsNullOrWhiteSpace(clinicianId) ? null : clinicianId,
+                    DoctorId = string.IsNullOrWhiteSpace(doctorId) ? null : doctorId,
+                    AssignedAt = DateTime.UtcNow
+                };
+                _db.PatientAssignments.Add(assignment);
+            }
+            else
+            {
+                assignment.ClinicianId = string.IsNullOrWhiteSpace(clinicianId) ? null : clinicianId;
+                assignment.DoctorId = string.IsNullOrWhiteSpace(doctorId) ? null : doctorId;
+                assignment.AssignedAt = DateTime.UtcNow;
+                _db.PatientAssignments.Update(assignment);
+            }
+
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = "Patient assignment updated.";
+            return RedirectToAction(nameof(Assignments));
         }
     }
 }

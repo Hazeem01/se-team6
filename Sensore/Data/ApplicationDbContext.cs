@@ -10,6 +10,7 @@ namespace Sensore.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<Alert> Alerts => Set<Alert>();
+        public DbSet<PatientAssignment> PatientAssignments => Set<PatientAssignment>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -23,6 +24,24 @@ namespace Sensore.Data
 
             builder.Entity<Alert>()
                 .HasIndex(a => new { a.UserId, a.StartTs });
+
+            builder.Entity<PatientAssignment>()
+                .HasOne(pa => pa.Patient)
+                .WithMany()
+                .HasForeignKey(pa => pa.PatientId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<PatientAssignment>()
+                .HasOne(pa => pa.Clinician)
+                .WithMany()
+                .HasForeignKey(pa => pa.ClinicianId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<PatientAssignment>()
+                .HasOne(pa => pa.Doctor)
+                .WithMany()
+                .HasForeignKey(pa => pa.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
