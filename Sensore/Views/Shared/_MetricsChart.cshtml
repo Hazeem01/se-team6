@@ -3,7 +3,7 @@
 @model List<KeyMetricVm>
 
 @{
-    // Prepare a simple array for JS: [{time: "...", peak: 123, area: 65}, ...]
+
     var points = Model.Select(m => new
     {
         time = m.Timestamp.ToString("HH:mm"),
@@ -32,7 +32,7 @@
 
 @section Scripts {
     <script>
-        // Data from server (already valid JSON)
+     
         const metricsPoints = @Html.Raw(json);
 
         const labels   = metricsPoints.map(p => p.time);

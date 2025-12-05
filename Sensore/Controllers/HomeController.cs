@@ -32,7 +32,7 @@ namespace Sensore.Controllers
                 if (User.IsInRole("Patient"))
                     return RedirectToAction("Patient", "Dashboard");
 
-                // fallback to main dashboard
+             
                 return RedirectToAction("Index", "Dashboard");
             }
 

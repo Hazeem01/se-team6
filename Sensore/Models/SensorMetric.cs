@@ -13,7 +13,7 @@ namespace Sensore.Models
         public double AveragePressure { get; set; }
         public int HighPressureRegions { get; set; }
 
-   
-        public string? UserId { get; set; }   
-}
+
+        public string? UserId { get; set; }
+    }
 }
