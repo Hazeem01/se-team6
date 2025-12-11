@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="GrapheneTrace.Clinician.UI/GrapheneTrace.Clinician.UI.csproj" />
+  <Project Path="GrapheneTrace.Core/GrapheneTrace.Core.csproj" />
+  <Project Path="GrapheneTrace.Data/GrapheneTrace.Data.csproj" />
+  <Project Path="GrapheneTrace.Tests/GrapheneTrace.Tests.csproj" />
+</Solution>
