@@ -45,7 +45,7 @@ namespace Sensore.Controllers
                 {
                     Id = u.Id,
                     Email = u.Email,
-                    UserName = u.UserName
+                    UserName = u.Email
                 }).ToList(),
                 AvailableRoles = SensoreRoles.All
             };
@@ -90,7 +90,7 @@ namespace Sensore.Controllers
 
             var user = new IdentityUser
             {
-                UserName = string.IsNullOrWhiteSpace(model.UserName) ? model.Email : model.UserName,
+                UserName = model.Email,
                 Email = model.Email,
                 EmailConfirmed = false
             };
@@ -257,10 +257,10 @@ namespace Sensore.Controllers
         {
             var vm = new AdminDashboardVm();
 
-            // total users
+            // This is the total users count
             vm.TotalUsers = await Task.FromResult(_userManager.Users.Count());
 
-            // counts per role
+            // These are counts per role
             vm.AdminCount = (await _userManager.GetUsersInRoleAsync(SensoreRoles.Admin)).Count;
             vm.ClinicianCount = (await _userManager.GetUsersInRoleAsync(SensoreRoles.Clinician)).Count;
             vm.DoctorCount = (await _userManager.GetUsersInRoleAsync(SensoreRoles.Doctor)).Count;
@@ -277,21 +277,63 @@ namespace Sensore.Controllers
         [HttpGet]
         public async Task<IActionResult> Assignments()
         {
-            var patients = await _userManager.GetUsersInRoleAsync(SensoreRoles.Patient);
-            var clinicians = await _userManager.GetUsersInRoleAsync(SensoreRoles.Clinician);
-            var doctors = await _userManager.GetUsersInRoleAsync(SensoreRoles.Doctor);
-
-            var assignments = await _db.PatientAssignments.AsNoTracking().ToListAsync();
-
-            var vm = new AdminPatientAssignmentVm
+            // Here, I try to fetch assignments; if the database is missing the PatientAssignments table, attempt to apply migrations and retry. I am doing this as a result of an error I am currently experiencing
+            try
             {
-                Patients = patients.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
-                Clinicians = clinicians.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
-                Doctors = doctors.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
-                Assignments = assignments
-            };
+                var patients = await _userManager.GetUsersInRoleAsync(SensoreRoles.Patient);
+                var clinicians = await _userManager.GetUsersInRoleAsync(SensoreRoles.Clinician);
+                var doctors = await _userManager.GetUsersInRoleAsync(SensoreRoles.Doctor);
 
-            return View(vm);
+                var assignments = await _db.PatientAssignments.AsNoTracking().ToListAsync();
+
+                var vm = new AdminPatientAssignmentVm
+                {
+                    Patients = patients.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                    Clinicians = clinicians.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                    Doctors = doctors.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                    Assignments = assignments
+                };
+
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                // If the failure looks like a missing table / pending model changes, I am trying to apply migrations and retry once.
+                if (ex.Message.Contains("Invalid object name", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("pending model", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("There are pending model changes", StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        await _db.Database.MigrateAsync();
+
+                        // Retry fetch
+                        var patients = await _userManager.GetUsersInRoleAsync(SensoreRoles.Patient);
+                        var clinicians = await _userManager.GetUsersInRoleAsync(SensoreRoles.Clinician);
+                        var doctors = await _userManager.GetUsersInRoleAsync(SensoreRoles.Doctor);
+
+                        var assignments = await _db.PatientAssignments.AsNoTracking().ToListAsync();
+
+                        var vm = new AdminPatientAssignmentVm
+                        {
+                            Patients = patients.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                            Clinicians = clinicians.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                            Doctors = doctors.Select(u => new UserItem { Id = u.Id, Email = u.Email ?? u.UserName }).ToList(),
+                            Assignments = assignments
+                        };
+
+                        TempData["Success"] = "Applied pending migrations automatically.";
+                        return View(vm);
+                    }
+                    catch (Exception migrateEx)
+                    {
+                        // If automatic migration fails, I am showing a helpful message and surface the original error.
+                        TempData["Error"] = "Database schema is out of sync. Please run migrations (dotnet ef database update) or check the connection string. " + migrateEx.Message;
+                        return RedirectToAction("Index");
+                    }
+                }
+
+                // Unknown error - rethrow to be handled by exception middleware
+                throw;
+            }
         }
 
         [HttpPost]
@@ -328,6 +370,34 @@ namespace Sensore.Controllers
             await _db.SaveChangesAsync();
 
             TempData["Success"] = "Patient assignment updated.";
+            return RedirectToAction(nameof(Assignments));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAssignment(Guid? assignmentId, string? patientId)
+        {
+            PatientAssignment? assignment = null;
+
+            if (assignmentId.HasValue)
+            {
+                assignment = await _db.PatientAssignments.FirstOrDefaultAsync(a => a.Id == assignmentId.Value);
+            }
+            else if (!string.IsNullOrWhiteSpace(patientId))
+            {
+                assignment = await _db.PatientAssignments.FirstOrDefaultAsync(a => a.PatientId == patientId);
+            }
+
+            if (assignment == null)
+            {
+                TempData["Error"] = "Assignment not found.";
+                return RedirectToAction(nameof(Assignments));
+            }
+
+            _db.PatientAssignments.Remove(assignment);
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = "Assignment removed.";
             return RedirectToAction(nameof(Assignments));
         }
     }

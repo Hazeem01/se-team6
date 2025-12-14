@@ -8,8 +8,6 @@ namespace Sensore.Models.Admin
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
-        public string? UserName { get; set; }
-
         public string[] AvailableRoles { get; set; } = Array.Empty<string>();
 
         public string? SelectedRole { get; set; } = string.Empty;
