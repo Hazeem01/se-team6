@@ -12,6 +12,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+/// <summary>
+/// Configure Identity:
+/// - Uses IdentityUser for user accounts
+/// - Adds role support via IdentityRole
+/// - Persists Identity data into ApplicationDbContext
+/// Notes: Authentication UI is provided by the Identity area (Razor Pages). Controllers use
+/// UserManager/RoleManager when managing accounts (AdminController).
+/// </summary>
 builder.Services.AddDefaultIdentity<IdentityUser>(options => {
     options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequiredLength = 8;
@@ -23,6 +31,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => {
 builder.Services.AddControllersWithViews();
 builder.Services.AddAuthorization(options =>
 {
+    // Policies map to role constants in SensoreRoles
     options.AddPolicy("IsAdmin", p => p.RequireRole(SensoreRoles.Admin));
     options.AddPolicy("IsClinician", p => p.RequireRole(SensoreRoles.Clinician));
     options.AddPolicy("IsPatient", p => p.RequireRole(SensoreRoles.Patient));
@@ -30,7 +39,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("IsManager", p => p.RequireRole(SensoreRoles.Manager));
 });
 
-//This is being used for better redirections
+// Configure cookie paths for Identity area (Razor Pages)
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
@@ -80,7 +89,7 @@ using (var scope = app.Services.CreateScope())
         throw;
     }
 
-    // I am using this to seed sample sensor metrics if none exist
+    // Seed sample sensor metrics if none exist - used for demo charts in the admin/manager UI.
     if (!db.SensorMetrics.Any())
     {
         var now = DateTime.UtcNow;
@@ -102,6 +111,7 @@ using (var scope = app.Services.CreateScope())
 
 try
 {
+    // Seed roles and sample users for admin testing (development only).
     await Sensore.Infrastructure.Seed.IdentitySeeder.SeedAsync(app.Services);
 }
 catch (Exception ex)

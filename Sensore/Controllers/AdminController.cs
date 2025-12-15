@@ -9,6 +9,16 @@ using Sensore.Models.Admin;
 
 namespace Sensore.Controllers
 {
+    /// Controller responsible for Admin area functionality:
+    /// - user management (create, delete, list)
+    /// - role assignment and role maintenance
+    /// - admin dashboard (high-level KPIs)
+    /// - patient, clinician assignments
+    ///
+    /// - Authorization is enforced by the "IsAdmin" policy.
+    /// - This controller uses ASP.NET Core Identity APIs (UserManager, RoleManager)
+    ///   directly from controllers.
+ 
     [Authorize(Policy = "IsAdmin")]
     public class AdminController : Controller
     {
@@ -16,6 +26,7 @@ namespace Sensore.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _db;
 
+        /// This injects Identity managers and the application DbContext.
         public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext db)
         {
             _userManager = userManager;
@@ -23,6 +34,8 @@ namespace Sensore.Controllers
             _db = db;
         }
 
+        /// List users with optional role filter and pagination.
+        /// Builds an AdminUsersVm that the view will render.
         public async Task<IActionResult> Index(string roleFilter = "", int page = 1, int pageSize = 10)
         {
             var users = _userManager.Users.AsQueryable();
@@ -60,6 +73,7 @@ namespace Sensore.Controllers
             return View(vm);
         }
 
+        /// Render the Create User form.
         [HttpGet]
         public IActionResult Create()
         {
@@ -70,6 +84,9 @@ namespace Sensore.Controllers
             return View(vm);
         }
 
+        /// Create a new user account. If a role is selected this action will ensure the role exists
+        /// and will assign the new user to the role. On success it stores a password-setup link in TempData.
+        /// After successful, the admin can copy the generated password-setup link.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminCreateUserVm model)
@@ -106,7 +123,7 @@ namespace Sensore.Controllers
                 return View(model);
             }
 
-        
+
             if (!string.IsNullOrWhiteSpace(model.SelectedRole))
             {
                 var r = model.SelectedRole;
@@ -139,14 +156,18 @@ namespace Sensore.Controllers
                 }
             }
 
+            // Generate a password setup token and URL for the new user.
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, token = token }, protocol: Request.Scheme);
-            TempData["Success"] = "User created successfully. Share the provided password setup link with the user.";
+
+            // Store link in TempData, the admin remains on the create page.
+            TempData["Success"] = "User created successfully. Copy the password setup link below and send it to the user.";
             TempData["PasswordSetupLink"] = callbackUrl;
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Create));
         }
 
+        /// Delete a user by id. It also prevents deleting the current admin self account.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string userId)
@@ -176,6 +197,7 @@ namespace Sensore.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// Update roles for a user. Passing an empty selectedRole will remove all roles.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateRoles(string userId, string selectedRole)
@@ -253,14 +275,17 @@ namespace Sensore.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// Build the admin dashboard VM and return the dashboard view.
+        /// This pulls counts from UserManager (Identity) and uses simple
+        /// placeholders for alerts/clinicians until the data layer is populated.
         public async Task<IActionResult> Dashboard()
         {
             var vm = new AdminDashboardVm();
 
-            // This is the total users count
+            // total users
             vm.TotalUsers = await Task.FromResult(_userManager.Users.Count());
 
-            // These are counts per role
+            // counts per role
             vm.AdminCount = (await _userManager.GetUsersInRoleAsync(SensoreRoles.Admin)).Count;
             vm.ClinicianCount = (await _userManager.GetUsersInRoleAsync(SensoreRoles.Clinician)).Count;
             vm.DoctorCount = (await _userManager.GetUsersInRoleAsync(SensoreRoles.Doctor)).Count;
@@ -274,10 +299,12 @@ namespace Sensore.Controllers
             return View(vm);
         }
 
+        /// Display patient assignment UI. Attempts to apply pending migrations automatically
+        /// if a database object is missing (academic convenience).
         [HttpGet]
         public async Task<IActionResult> Assignments()
         {
-            // Here, I try to fetch assignments; if the database is missing the PatientAssignments table, attempt to apply migrations and retry. I am doing this as a result of an error I am currently experiencing
+            // Try to fetch assignments; if the database is missing the PatientAssignments table, attempt to apply migrations and retry.
             try
             {
                 var patients = await _userManager.GetUsersInRoleAsync(SensoreRoles.Patient);
@@ -298,7 +325,7 @@ namespace Sensore.Controllers
             }
             catch (Exception ex)
             {
-                // If the failure looks like a missing table / pending model changes, I am trying to apply migrations and retry once.
+                // If the failure looks like a missing table / pending model changes, try applying migrations and retry once.
                 if (ex.Message.Contains("Invalid object name", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("pending model", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("There are pending model changes", StringComparison.OrdinalIgnoreCase))
                 {
                     try
@@ -325,7 +352,7 @@ namespace Sensore.Controllers
                     }
                     catch (Exception migrateEx)
                     {
-                        // If automatic migration fails, I am showing a helpful message and surface the original error.
+                        // If automatic migration fails, it show the message below and surface the original error.
                         TempData["Error"] = "Database schema is out of sync. Please run migrations (dotnet ef database update) or check the connection string. " + migrateEx.Message;
                         return RedirectToAction("Index");
                     }
@@ -336,6 +363,7 @@ namespace Sensore.Controllers
             }
         }
 
+        /// Assign or update patient assignment (clinician or doctor).
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignPatient(string patientId, string? clinicianId, string? doctorId)
@@ -373,6 +401,7 @@ namespace Sensore.Controllers
             return RedirectToAction(nameof(Assignments));
         }
 
+        /// Remove a patient assignment (by assignment id or patient id).
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteAssignment(Guid? assignmentId, string? patientId)

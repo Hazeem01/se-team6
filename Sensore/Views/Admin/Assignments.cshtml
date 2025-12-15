@@ -4,6 +4,15 @@
     ViewData["Title"] = "Patient Assignments";
 }
 
+@*
+    Admin Patient Assignments view.
+    Model: AdminPatientAssignmentVm
+    Responsibilities:
+    - Show lists of patients, clinicians and doctors for assignment selection.
+    - Display current assignments and allow create/update/delete via form posts to the AdminController.
+    - The view relies on PatientAssignment domain entities for persistence.
+*@
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Patient Assignments</h2>
     <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">? Back to Users</a>

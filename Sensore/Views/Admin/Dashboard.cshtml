@@ -1,5 +1,18 @@
 @model Sensore.Models.Admin.AdminDashboardVm
 
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+@*
+    Admin Dashboard view.
+    Model: AdminDashboardVm
+    Responsibilities:
+    - Display top-level KPIs for administrators.
+    - Provide quick access links for user management and reporting.
+    - Render a role breakdown chart powered by Chart.js.
+*@
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="m-0">Admin Dashboard</h2>
     <div>

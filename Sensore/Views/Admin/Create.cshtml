@@ -4,6 +4,16 @@
     ViewData["Title"] = "Create User";
 }
 
+@*
+    Admin Create User view.
+    Model: AdminCreateUserVm
+    Responsibilities:
+    - Display a form for creating a new user account.
+    - Allow the administrator to optionally select a role for the new user.
+    - Validation is performed server-side using data annotations on the ViewModel.
+    - After successful creation the generated password setup link is shown (from TempData) so the admin can copy it.
+*@
+
 <div class="card">
     <div class="card-body">
         <h2>Create User</h2>
