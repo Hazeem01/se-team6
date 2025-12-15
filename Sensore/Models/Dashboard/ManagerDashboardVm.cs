@@ -20,7 +20,7 @@ namespace Sensore.Models.Dashboard
     public class ManagerDashboardVm
     {
         // Header / filters
-        public string SelectedPeriod { get; set; } = "today"; // "today" | "week" | "month"
+        public string SelectedPeriod { get; set; } = "today"; // "today" 
 
         // Key metrics (top row)
         public int TotalPatients { get; set; }

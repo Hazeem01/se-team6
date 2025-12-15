@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Sensore.Data;
 using Sensore.Models;
 using Sensore.Models.Dashboard;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace Sensore.Controllers
 {
