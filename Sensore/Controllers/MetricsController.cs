@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sensore.Models.Dashboard;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+
 
 namespace Sensore.Controllers
 {
