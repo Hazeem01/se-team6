@@ -1,19 +1,19 @@
 ﻿@model Sensore.Models.Dashboard.ManagerDashboardVm
 @using Sensore.Models.Dashboard
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Manager Dashboard";
 }
 
 <h2 class="mt-3 d-flex align-items-center gap-2">
-    <span class="me-2">
-        <i class="bi bi-bar-chart-fill"></i> 
-    </span>
+    <i class="bi bi-bar-chart-fill"></i>
     @ViewData["Title"]
 </h2>
 <p class="text-muted">System overview and operational insights</p>
 
 <div class="container mt-4">
+
 
     <div class="d-flex justify-content-end mb-3">
         <div class="btn-group" role="group">
@@ -21,12 +21,24 @@
                class="btn btn-sm @(Model.SelectedPeriod == "today" ? "btn-primary" : "btn-outline-secondary")">
                 Today
             </a>
-     
+
+            <a asp-action="Index" asp-route-period="week"
+               class="btn btn-sm @(Model.SelectedPeriod == "week" ? "btn-primary" : "btn-outline-secondary")">
+                This Week
+            </a>
+
+            <a asp-action="Index" asp-route-period="month"
+               class="btn btn-sm @(Model.SelectedPeriod == "month" ? "btn-primary" : "btn-outline-secondary")">
+                This Month
+            </a>
         </div>
     </div>
 
+
+   
     <div class="row g-3 mb-4">
 
+      
         <div class="col-md-3">
             <div class="card h-100 border border-2">
                 <div class="card-body">
@@ -39,13 +51,16 @@
             </div>
         </div>
 
+      
         <div class="col-md-3">
             <div class="card h-100 border border-2">
                 <div class="card-body">
                     <div class="text-muted small mb-1">
                         <i class="bi bi-activity me-1"></i> Care Team
                     </div>
-                    <div class="h3 mb-1">@(@Model.TotalClinicians + @Model.TotalDoctors)</div>
+                    <div class="h3 mb-1">
+                        @(Model.TotalClinicians + Model.TotalDoctors)
+                    </div>
                     <div class="text-muted small">
                         @Model.TotalClinicians clinicians, @Model.TotalDoctors doctors
                     </div>
@@ -53,6 +68,7 @@
             </div>
         </div>
 
+      
         <div class="col-md-3">
             <div class="card h-100 border border-2 border-danger bg-danger-subtle">
                 <div class="card-body">
@@ -67,6 +83,7 @@
             </div>
         </div>
 
+       
         <div class="col-md-3">
             <div class="card h-100 border border-2 border-success bg-success-subtle">
                 <div class="card-body">
@@ -85,49 +102,55 @@
 
     
     <div class="row g-4">
-       
+
+        
         <div class="col-lg-8">
             <div class="card border border-2">
                 <div class="card-header">
                     <h5 class="card-title mb-0">System Performance</h5>
                 </div>
+
                 <div class="card-body">
 
-                    <!-- Metrics Chart and Alert trend buttons -->
                    
-                    <ul class="nav nav-tabs" id="perfTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="metrics-tab"
-                                    data-bs-toggle="tab" data-bs-target="#metrics"
-                                    type="button" role="tab">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#metrics"
+                                    type="button">
                                 Pressure Metrics
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="alerts-tab"
-                                    data-bs-toggle="tab" data-bs-target="#alerts"
-                                    type="button" role="tab">
+                        <li class="nav-item">
+                            <button class="nav-link"
+                                    data-bs-toggle="tab"
+                                    data-bs-target="#alerts"
+                                    type="button">
                                 Alert Trends
                             </button>
                         </li>
                     </ul>
-                    <!-- Metrics chat model-->
-                    <div class="tab-content mt-3" id="perfTabsContent">
-                      
-                        <div class="tab-pane fade show active" id="metrics" role="tabpanel">
+
+                 
+                    <div class="tab-content mt-3">
+
+                     
+                        <div class="tab-pane fade show active" id="metrics">
                             @if (Model.Metrics != null && Model.Metrics.Any())
                             {
                                 @await Html.PartialAsync("_MetricsChart", Model.Metrics)
                             }
                             else
                             {
-                                <p class="text-muted small mb-0">No metrics data available.</p>
+                                <p class="text-muted small">No metrics data available.</p>
                             }
                         </div>
 
-                       <!-- Alert trends cards -->
-                        <div class="tab-pane fade" id="alerts" role="tabpanel">
+                     
+                        <div class="tab-pane fade" id="alerts">
                             <div class="row g-3">
+
                                 <div class="col-md-4">
                                     <div class="p-3 border border-2 border-danger bg-danger-subtle rounded-3">
                                         <div class="small text-danger">High Severity</div>
@@ -136,6 +159,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-4">
                                     <div class="p-3 border border-2 border-warning bg-warning-subtle rounded-3">
                                         <div class="small text-warning">Medium Severity</div>
@@ -144,6 +168,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="col-md-4">
                                     <div class="p-3 border border-2 border-success bg-success-subtle rounded-3">
                                         <div class="small text-success">Low Severity</div>
@@ -152,29 +177,32 @@
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
 
                             <div class="mt-3 p-3 border border-2 rounded-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex justify-content-between mb-2">
                                     <span class="small">Average Response Time</span>
                                     <i class="bi bi-clock text-muted"></i>
                                 </div>
-                                <div class="h4 mb-0">@Model.AverageResponseHours.ToString("F1") hours</div>
+                                <div class="h4 mb-0">
+                                    @Model.AverageResponseHours.ToString("F1") hours
+                                </div>
                                 <div class="small text-muted">
                                     From alert creation to review
                                 </div>
                             </div>
+
                         </div>
                     </div>
-
-                </div> 
+                </div>
             </div>
         </div>
 
-       
+      
         <div class="col-lg-4">
-            <!-- High risk patients card -->
-         
+
+            
             <div class="card border border-2 border-danger mb-4">
                 <div class="card-header">
                     <h5 class="card-title mb-0 text-danger">
@@ -182,6 +210,7 @@
                         High-Risk Patients
                     </h5>
                 </div>
+
                 <div class="card-body">
                     @if (!Model.HighRiskPatients.Any())
                     {
@@ -195,12 +224,11 @@
                         @foreach (var patient in Model.HighRiskPatients.Take(5))
                         {
                             <div class="p-3 mb-2 border border-2 border-danger bg-danger-subtle rounded-3">
-                                <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex justify-content-between">
                                     <div>
                                         <div class="small fw-semibold">@patient.Name</div>
                                         <div class="small text-muted">
-                                            @patient.UnreviewedAlertCount
-                                            unreviewed alert@(patient.UnreviewedAlertCount > 1 ? "s" : "")
+                                            @patient.UnreviewedAlertCount unreviewed alert(s)
                                         </div>
                                     </div>
                                     <span class="badge bg-danger">HIGH</span>
@@ -211,7 +239,6 @@
                 </div>
             </div>
 
-            <!--Care Team status-->
           
             <div class="card border border-2">
                 <div class="card-header">
@@ -220,9 +247,10 @@
                         Care Team Status
                     </h5>
                 </div>
+
                 <div class="card-body">
 
-                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 border border-2 rounded-3">
+                    <div class="d-flex justify-content-between p-2 mb-2 border border-2 rounded-3">
                         <div>
                             <div class="small">Clinicians</div>
                             <div class="small text-muted">Active staff</div>
@@ -230,7 +258,7 @@
                         <div class="h4 mb-0">@Model.TotalClinicians</div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center p-2 mb-2 border border-2 rounded-3">
+                    <div class="d-flex justify-content-between p-2 mb-2 border border-2 rounded-3">
                         <div>
                             <div class="small">Doctors</div>
                             <div class="small text-muted">Medical team</div>
@@ -238,17 +266,17 @@
                         <div class="h4 mb-0">@Model.TotalDoctors</div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center p-2 border border-2 rounded-3">
+                    <div class="d-flex justify-content-between p-2 border border-2 rounded-3">
                         <div>
                             <div class="small">Avg. Patient Load</div>
                             <div class="small text-muted">Per care provider</div>
                         </div>
                         <div class="h4 mb-0">
                             @{
-                                var careTeamCount = Model.TotalClinicians + Model.TotalDoctors;
-                                var avgLoad = careTeamCount == 0
+                                var careTeam = Model.TotalClinicians + Model.TotalDoctors;
+                                var avgLoad = careTeam == 0
                                 ? 0
-                                : (int)Math.Round((double)Model.TotalPatients / careTeamCount);
+                                : (int)Math.Round((double)Model.TotalPatients / careTeam);
                             }
                             @avgLoad
                         </div>
@@ -257,7 +285,47 @@
                 </div>
             </div>
 
-        </div> 
-    </div> 
+        </div>
+    </div>
+</div>
 
-</div> 
+@section Scripts {
+    <script>
+        const metricsPoints = @Html.Raw(JsonSerializer.Serialize(
+            (Model.Metrics ?? new List<KeyMetricVm>()).Select(m => new {
+                time = m.Timestamp.ToLocalTime().ToString("HH:mm"),
+                peak = Math.Round(m.PeakPressureIndex, 1),
+                area = Math.Round(m.ContactAreaPercentage, 1)
+            })
+        ));
+
+        console.log("metricsPoints:", metricsPoints);
+
+        const canvas = document.getElementById("managerMetricsChart");
+        if (!canvas) {
+            console.error("Canvas #managerMetricsChart not found.");
+        } else if (!metricsPoints || metricsPoints.length === 0) {
+            console.warn("No metrics points.");
+        } else {
+            new Chart(canvas, {
+                type: "line",
+                data: {
+                    labels: metricsPoints.map(p => p.time),
+                    datasets: [
+                        { label: "Peak Pressure", data: metricsPoints.map(p => p.peak), fill: true, tension: 0.35, pointRadius: 0 },
+                        { label: "Contact Area %", data: metricsPoints.map(p => p.area), fill: true, tension: 0.35, pointRadius: 0, yAxisID: "y1" }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { position: "left" },
+                        y1: { position: "right", grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+    </script>
+}

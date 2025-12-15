@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sensore.Data;
+using Sensore.Data.Migrations;
 using Sensore.Models;
 using Sensore.Models.Dashboard;
-using Microsoft.AspNetCore.Identity;
+using System.Linq;
 
 
 namespace Sensore.Controllers
@@ -13,10 +15,11 @@ namespace Sensore.Controllers
     public class ManagerController : Controller
     {
         private readonly ApplicationDbContext _db;
-
-        public ManagerController(ApplicationDbContext db)
+        private readonly UserManager<IdentityUser> _userManager;
+        public ManagerController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
         {
             _db = db;
+            _userManager = userManager; 
         }
 
         [HttpGet]
@@ -26,22 +29,37 @@ namespace Sensore.Controllers
             {
                 SelectedPeriod = period
             };
+            var clinicians = await _userManager.GetUsersInRoleAsync("Clinician");
+            var doctors = await _userManager.GetUsersInRoleAsync("Doctor");
+            var patients = await _userManager.GetUsersInRoleAsync("Patient");
 
+            vm.TotalClinicians = clinicians.Count;
+            vm.TotalDoctors = doctors.Count;
+            vm.TotalPatients = patients.Count;
 
-            vm.TotalPatients = await _db.Users.CountAsync();
+          
+            var patientIds = patients
+                .Select(p => p.Id)
+                .ToHashSet();
 
-
-            vm.TotalClinicians = 2;
-            vm.TotalDoctors = 0;
-
+            
             var alerts = await _db.Alerts
                 .Include(a => a.User)
                 .ToListAsync();
 
+            
             vm.TotalAlerts = alerts.Count;
             vm.UnreviewedAlerts = alerts.Count(a => !a.Acknowledged);
             vm.CriticalAlerts = alerts.Count(a => a.Severity == "Critical" && !a.Acknowledged);
             vm.ReviewedAlerts = alerts.Count(a => a.Acknowledged);
+
+            
+            var highRiskAlerts = alerts
+                .Where(a => a.Severity == "Critical"
+                         && !a.Acknowledged
+                         && a.UserId != null
+                         && patientIds.Contains(a.UserId))
+                .ToList();
 
             vm.ResolutionRate = vm.TotalAlerts == 0
                 ? 0
@@ -57,10 +75,7 @@ namespace Sensore.Controllers
             vm.AlertSeverity.Low = alerts.Count(a => a.Severity == "Low");
 
 
-            var highRiskAlerts = alerts
-                .Where(a => a.Severity == "Critical" && !a.Acknowledged && a.UserId != null)
-                .ToList();
-
+       
             var highRiskGroups = highRiskAlerts
                 .GroupBy(a => a.UserId!)
                 .ToList();

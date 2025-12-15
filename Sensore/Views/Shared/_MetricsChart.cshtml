@@ -3,7 +3,7 @@
 @model List<KeyMetricVm>
 
 @{
-
+ 
     var points = Model.Select(m => new
     {
         time = m.Timestamp.ToString("HH:mm"),
@@ -11,12 +11,13 @@
         area = Math.Round(m.ContactAreaPercentage, 1)
     });
 
+   
     var json = JsonSerializer.Serialize(points);
 }
 
-<div class="card mt-4">
+<div class="card border-0 shadow-sm">
     <div class="card-body">
-        <h5 class="card-title mb-3">System Performance</h5>
+        <h5 class="card-title mb-1">System Performance</h5>
         <p class="text-muted small mb-3">Pressure Metrics</p>
 
         <div style="height:260px;">
@@ -24,82 +25,12 @@
         </div>
 
         <div class="mt-2 text-center small">
-            <span class="me-3"><span style="color:#3b82f6;">●</span> Contact Area %</span>
-            <span><span style="color:#ef4444;">●</span> Peak Pressure</span>
+            <span class="me-3">
+                <span style="color:#3b82f6;">●</span> Contact Area %
+            </span>
+            <span>
+                <span style="color:#ef4444;">●</span> Peak Pressure
+            </span>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-     
-        const metricsPoints = @Html.Raw(json);
-
-        const labels   = metricsPoints.map(p => p.time);
-        const peakData = metricsPoints.map(p => p.peak);
-        const areaData = metricsPoints.map(p => p.area);
-
-        const ctx = document.getElementById('managerMetricsChart');
-
-        if (ctx && window.Chart) {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Peak Pressure',
-                            data: peakData,
-                            borderColor: '#ef4444',
-                            backgroundColor: 'rgba(248,113,113,0.35)',
-                            fill: true,
-                            tension: 0.35,
-                            borderWidth: 2,
-                            pointRadius: 0
-                        },
-                        {
-                            label: 'Contact Area %',
-                            data: areaData,
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(147,197,253,0.45)',
-                            fill: true,
-                            tension: 0.35,
-                            borderWidth: 2,
-                            pointRadius: 0,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: {
-                            grid: { color: '#e5e7eb' },
-                            ticks: { font: { size: 11 } }
-                        },
-                        y: {
-                            position: 'left',
-                            grid: { color: '#e5e7eb' },
-                            ticks: { font: { size: 11 } }
-                        },
-                        y1: {
-                            position: 'right',
-                            grid: { drawOnChartArea: false },
-                            ticks: { font: { size: 11 } }
-                        }
-                    }
-                }
-            });
-        } else {
-            console.warn('Chart.js not loaded or canvas not found.');
-        }
-    </script>
-}

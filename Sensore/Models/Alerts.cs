@@ -13,6 +13,7 @@ namespace Sensore.Models
         public string Severity { get; set; } = "Warning";
         public string Type { get; set; } = "HIGH_PRESSURE";
         public string? Reason { get; set; }
+       
         public DateTime StartTs { get; set; } = DateTime.UtcNow;
         public DateTime? EndTs { get; set; }
         public bool Acknowledged { get; set; } = false;
