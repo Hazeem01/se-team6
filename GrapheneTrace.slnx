@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="GrapheneTrace.Clinician.UI/GrapheneTrace.Clinician.UI.csproj" />
+  <Project Path="asp.net core web app/asp.net core web app.csproj" Id="8ac1c954-9421-4682-890c-094eff851c8c" />
   <Project Path="GrapheneTrace.Core/GrapheneTrace.Core.csproj" />
   <Project Path="GrapheneTrace.Data/GrapheneTrace.Data.csproj" />
   <Project Path="GrapheneTrace.Tests/GrapheneTrace.Tests.csproj" />
