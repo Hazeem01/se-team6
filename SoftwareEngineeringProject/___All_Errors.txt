@@ -1,0 +1,8 @@
+CorrelationId: 4ce0ddfb-2889-4c67-84e1-8d1139d5e3af
+UTC DateTime: 12/11/2025 15:12:01
+
+The following files/folders have not been downloaded
+0. SoftwareEngineeringProject/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/staticwebassets/SoftwareEngineeringProject.StaticWebAssets.Manifest.cache
+1. SoftwareEngineeringProject/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/SoftwareEngineeringProject.csproj.CopyComplete
+2. SoftwareEngineeringProject/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/SoftwareEngineeringProject.MvcApplicationPartsAssemblyInfo.cache
+3. SoftwareEngineeringProject/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/SoftwareEngineeringProject.TagHelpers.input.cache

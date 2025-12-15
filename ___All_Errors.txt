@@ -1,0 +1,16 @@
+CorrelationId: e4d44c6c-3028-4334-8c86-d71bbcb35984
+UTC DateTime: 12/14/2025 10:12:20
+
+The following files/folders have not been downloaded
+0. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/staticwebassets/SoftwareEngineeringProject.StaticWebAssets.Manifest.cache
+1. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/Software.57FEEDA0.Up2Date
+2. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/SoftwareEngineeringProject.csproj.BuildWithSkipAnalyzers
+3. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/SoftwareEngineeringProject.csproj.CopyComplete
+4. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/SoftwareEngineeringProject.MvcApplicationPartsAssemblyInfo.cache
+5. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net5.0/SoftwareEngineeringProject.TagHelpers.input.cache
+6. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net6.0/SoftwareEngineeringProject.csproj.FileListAbsolute.txt
+7. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net6.0/staticwebassets.references.upToDateCheck.txt
+8. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net6.0/staticwebassets.removed.txt
+9. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net8.0/SoftwareEngineeringProject.MvcApplicationPartsAssemblyInfo.cache
+10. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net8.0/staticwebassets.references.upToDateCheck.txt
+11. SoftwareEngineeringProject (1)/Projects/SoftwareEngineeringProject/SoftwareEngineeringProject/obj/Debug/net8.0/staticwebassets.removed.txt
