@@ -1,0 +1,64 @@
+﻿@model IEnumerable<Sensore.Models.Alert>
+
+@{
+    ViewData["Title"] = "All Alerts";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@ViewData["Title"]</h2>
+    <a asp-controller="Manager" asp-action="Index" class="btn btn-secondary">
+        ← Back to Dashboard
+    </a>
+</div>
+
+<table class="table table-bordered text-center align-middle shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Severity</th>
+            <th>Type</th>
+            <th>Reason</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var alert in Model)
+        {
+            var rowClass = alert.Severity switch
+            {
+                "Critical" => "table-danger",
+                "Medium" => "table-warning",
+                "Low" => "table-info",
+                _ => "table-light"
+            };
+
+            <tr class="@rowClass">
+                <td><strong>@alert.Severity</strong></td>
+                <td>@alert.Type</td>
+                <td>@alert.Reason</td>
+                <td>@alert.StartTs.ToLocalTime()</td>
+                <td>@(alert.EndTs?.ToLocalTime().ToString() ?? "-")</td>
+                <td>@(alert.Acknowledged ? "Acknowledged" : "Active")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .table-danger {
+        background-color: #f8d7da;
+    }
+
+    .table-warning {
+        background-color: #fff3cd;
+    }
+
+    .table-info {
+        background-color: #d1ecf1;
+    }
+
+    .table-light {
+        background-color: #f8f9fa;
+    }
+</style>

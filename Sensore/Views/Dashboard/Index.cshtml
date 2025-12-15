@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2>Dashboard</h2>
+
+<p>Welcome, @User.Identity?.Name</p>
+
+<div class="mb-3">
+    @if (User.IsInRole("Admin"))
+    {
+        <a class="btn btn-primary" asp-controller="Admin" asp-action="Dashboard">Admin Dashboard</a>
+        <a class="btn btn-secondary" asp-controller="Admin" asp-action="Index">Manage Users</a>
+    }
+    @if (User.IsInRole("Clinician"))
+    {
+        <a class="btn btn-primary" asp-action="Clinician">Clinician Dashboard</a>
+    }
+    @if (User.IsInRole("Patient"))
+    {
+        <a class="btn btn-primary" asp-action="Patient">Patient Dashboard</a>
+    }
+    @if (User.IsInRole("Doctor"))
+    {
+        <a class="btn btn-primary" asp-action="Doctor">Doctor Dashboard</a>
+    }
+    @if (User.IsInRole("Manager"))
+    {
+        <a class="btn btn-primary" asp-action="Manager">Manager Dashboard</a>
+    }
+</div>
+
+<p>If you are seeing this page, your account doesn't have a specific dashboard or the specific view is not implemented yet.</p>

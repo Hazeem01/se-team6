@@ -1,0 +1,105 @@
+@model Sensore.Models.Admin.AdminPatientAssignmentVm
+
+@{
+    ViewData["Title"] = "Patient Assignments";
+}
+
+@*
+    Admin Patient Assignments view.
+    Model: AdminPatientAssignmentVm
+    Responsibilities:
+    - Show lists of patients, clinicians and doctors for assignment selection.
+    - Display current assignments and allow create/update/delete via form posts to the AdminController.
+    - The view relies on PatientAssignment domain entities for persistence.
+*@
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Patient Assignments</h2>
+    <a asp-controller="Admin" asp-action="Index" class="btn btn-secondary">? Back to Users</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Patient</th>
+            <th>Assigned Clinician</th>
+            <th>Assigned Doctor</th>
+            <th>Assigned At</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model.Patients)
+        {
+            var assignment = Model.Assignments.FirstOrDefault(a => a.PatientId == p.Id);
+            <tr>
+                <td>@p.Email</td>
+                <td>
+                    <form asp-action="AssignPatient" method="post" class="row g-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="patientId" value="@p.Id" />
+                        <div class="col-6">
+                            <select name="clinicianId" class="form-select">
+                                <option value="">-- Unassigned --</option>
+                                @foreach (var c in Model.Clinicians)
+                                {
+                                    if (assignment?.ClinicianId == c.Id)
+                                    {
+                                        <option value="@c.Id" selected>@c.Email</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@c.Id">@c.Email</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <select name="doctorId" class="form-select">
+                                <option value="">-- Unassigned --</option>
+                                @foreach (var d in Model.Doctors)
+                                {
+                                    if (assignment?.DoctorId == d.Id)
+                                    {
+                                        <option value="@d.Id" selected>@d.Email</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@d.Id">@d.Email</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-2 d-flex align-items-start">
+                            <button class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </td>
+                <td>@(assignment?.AssignedAt.ToLocalTime().ToString() ?? "-")</td>
+                <td>
+                    @if (assignment != null)
+                    {
+                        <form asp-action="DeleteAssignment" method="post" onsubmit="return confirm('Remove assignment for this patient?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="assignmentId" value="@assignment.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Unassign</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No assignment</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

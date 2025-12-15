@@ -1,0 +1,176 @@
+﻿@using System.Text.Json
+@model List<Sensore.Models.Dashboard.KeyMetricVm>
+
+@{
+    ViewData["Title"] = "Pressure Trends";
+
+    var selectedPeriod = (string?)ViewBag.SelectedPeriod ?? "6h";
+
+    var chartPoints = Model.Select(m => new
+    {
+        time = m.Timestamp.ToString("HH:mm"),
+        peak = Math.Round(m.PeakPressureIndex, 1),
+        area = Math.Round(m.ContactAreaPercentage, 1)
+    });
+
+    var chartJson = JsonSerializer.Serialize(chartPoints);
+}
+
+<div class="card mt-4">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Pressure Trends</h5>
+
+        <div class="mb-3">
+            <input type="range"
+                   id="frameSlider"
+                   class="form-range"
+                   min="0"
+                   max="@(Model.Count - 1)"
+                   value="@(Model.Count - 1)" />
+            <div class="d-flex justify-content-between small text-muted">
+                <span id="frameLabel">Frame @(Model.Count) of @Model.Count</span>
+                <span>Interval: 5 min</span>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div></div>
+            <div class="btn-group btn-group-sm" role="group">
+                <a asp-controller="Manager" asp-action="Metrics" asp-route-period="1h"
+                   class="btn @(selectedPeriod == "1h" ? "btn-primary" : "btn-outline-secondary")">1h</a>
+                <a asp-controller="Manager" asp-action="Metrics" asp-route-period="6h"
+                   class="btn @(selectedPeriod == "6h" ? "btn-primary" : "btn-outline-secondary")">6h</a>
+                <a asp-controller="Manager" asp-action="Metrics" asp-route-period="24h"
+                   class="btn @(selectedPeriod == "24h" ? "btn-primary" : "btn-outline-secondary")">24h</a>
+                <a asp-controller="Manager" asp-action="Metrics" asp-route-period="7d"
+                   class="btn @(selectedPeriod == "7d" ? "btn-primary" : "btn-outline-secondary")">7d</a>
+            </div>
+        </div>
+
+        <div style="height: 320px;">
+            <canvas id="pressureChart"></canvas>
+        </div>
+
+        <div class="mt-2 text-center small">
+            <span class="me-3"><span style="color:#3b82f6;">●</span> Contact Area %</span>
+            <span><span style="color:#ef4444;">●</span> Peak Pressure</span>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const points = @Html.Raw(chartJson) ;
+
+        const labels = points.map(p => p.time);
+        const peakData = points.map(p => p.peak);
+        const areaData = points.map(p => p.area);
+
+        const ctx = document.getElementById('pressureChart').getContext('2d');
+
+        const pressureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Peak Pressure',
+                        data: peakData,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(248,113,113,0.35)',
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Contact Area %',
+                        data: areaData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(147,197,253,0.45)',
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'white',
+                        titleColor: '#111827',
+                        bodyColor: '#111827',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        displayColors: true
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: true,
+                            color: '#e5e7eb'
+                        },
+                        ticks: {
+                            font: { size: 11 }
+                        }
+                    },
+                    y: {
+                        position: 'left',
+                        grid: {
+                            display: true,
+                            color: '#e5e7eb'
+                        },
+                        ticks: {
+                            font: { size: 11 }
+                        }
+                    },
+                    y1: {
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        ticks: {
+                            font: { size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        const slider = document.getElementById('frameSlider');
+        const frameLabel = document.getElementById('frameLabel');
+
+        function updateFrame() {
+            const idx = parseInt(slider.value);
+            const frameNumber = idx + 1;
+            frameLabel.textContent = `Frame ${frameNumber} of ${points.length}`;
+
+            pressureChart.setActiveElements([
+                { datasetIndex: 0, index: idx },
+                { datasetIndex: 1, index: idx }
+            ]);
+            pressureChart.tooltip.setActiveElements(
+                [
+                    { datasetIndex: 0, index: idx },
+                    { datasetIndex: 1, index: idx }
+                ],
+                { x: 0, y: 0 }
+            );
+            pressureChart.update();
+        }
+
+        slider.addEventListener('input', updateFrame);
+        updateFrame();
+    </script>
+}
